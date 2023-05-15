@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Modelo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ModeloController extends Controller
 {
@@ -90,7 +91,7 @@ class ModeloController extends Controller
      * @param  \App\Models\Modelo  $modelo
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Modelo $modelo)
+    public function update(Request $request, $id)
     {
         $modelo = $this->modelo->find($id);
 
@@ -141,7 +142,7 @@ class ModeloController extends Controller
      * @param  \App\Models\Modelo  $modelo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Modelo $modelo)
+    public function destroy($id)
     {
         $modelo = $this->modelo->find($id);
 
