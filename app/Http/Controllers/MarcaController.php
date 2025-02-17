@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
+    private $marca;
     public function __construct(Marca $marca)
     {
         $this->marca = $marca;
@@ -121,10 +122,10 @@ class MarcaController extends Controller
         $image = $request->file('imagem');
         $image_urn = $image->store('imagens', 'public');
 
-        $marca->update([
-            'nome' => $request->nome,
-            'imagem' => $image_urn
-        ]);
+        $marca->fill($request->all());
+        $marca->imagem = $image_urn;
+        $marca->save();
+
         return response()->json($marca, 200);
     }
 
