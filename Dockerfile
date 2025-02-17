@@ -1,32 +1,28 @@
-# Usando imagem oficial do PHP 8.x com Apache
 FROM php:8.1-apache
 
-# Atualiza e instala extensões necessárias
+# Instala pacotes necessários
 RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install \
-    pdo_mysql \
-    intl \
-    zip
+    libicu-dev libzip-dev zip unzip git \
+    && docker-php-ext-install pdo_mysql intl zip
 
-# Habilita o mod_rewrite do Apache para permitir URLs amigáveis do Laravel
+# Habilita mod_rewrite
 RUN a2enmod rewrite
 
-# Instala o Composer a partir da imagem oficial do Composer
+# Ajusta o DocumentRoot para /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+
+# Permite que .htaccess (Laravel) funcione (AllowOverride All)
+RUN echo '<Directory /var/www/html>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/allowoverride.conf \
+    && a2enconf allowoverride
+
+# Copia o Composer de uma imagem oficial para dentro
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Define a pasta de trabalho dentro do container
 WORKDIR /var/www/html
 
-# Copia o conteúdo do projeto para dentro do container (opcional se não for usar volume)
-# COPY . /var/www/html
-
-# Exemplo de comando para rodar na inicialização (opcional):
-# RUN composer install && php artisan key:generate
-
-# Expõe a porta 80
 EXPOSE 80
+CMD ["apache2-foreground"]
